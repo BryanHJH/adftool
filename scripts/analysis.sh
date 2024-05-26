@@ -6,7 +6,7 @@ analyze_file() {
     verbose="$2"
     
     # Create a directory to store the results based on the file name
-    result_dir="results_$(basename "$file")"
+    result_dir="../results/results_$(basename "$file")"
     mkdir -p "$result_dir"
     
     # Generate a unique filename for the result file and error/log file

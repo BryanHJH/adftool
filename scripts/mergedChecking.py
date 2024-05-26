@@ -40,7 +40,7 @@ def analyze_file(file_path):
     if is_match:
         if sig_dict['file_extension'] in ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'pcap', 'pcapng']:
             print(f"Analyzing {file_path} with steganalysis and packet capture analysis...")
-            result_dir = f"results_{os.path.basename(file_path)}"
+            result_dir = f"../results/results_{os.path.basename(file_path)}"
             os.makedirs(result_dir, exist_ok=True)
             subprocess.run(['./analysis.sh', file_path, result_dir], check=True)
         else:
