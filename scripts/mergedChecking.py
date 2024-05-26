@@ -61,6 +61,7 @@ def analyze_file(file_path):
             print(f"{file_path} has an unknown file signature.")
 
 def process_input(input_path):
+    input_path = os.path.abspath(input_path)
     if os.path.isfile(input_path):
         analyze_file(input_path)
     elif os.path.isdir(input_path):
