@@ -28,15 +28,16 @@ def check_file_signature(file_path):
         for sig_dict in SIGNATURES:
             if sig_dict['file_extension'] == file_ext:
                 sig_bytes = bytes([b for b in sig_dict['hex'] if b is not None])
-                if header.startswith(sig_bytes):
+                if len(sig_bytes) >= 8 and header[:len(sig_bytes)].startswith(sig_bytes[:8]):
                     return True, sig_dict, header
         return False, find_closest_signature(header), header
     else:
         closest_sig = find_closest_signature(header)
         if closest_sig:
-            return True, closest_sig, header
-        else:
-            return False, None, header
+            sig_bytes = bytes([b for b in closest_sig['hex'] if b is not None])
+            if len(sig_bytes) >= 8 and header[:len(sig_bytes)].startswith(sig_bytes[:8]):
+                return True, closest_sig, header
+        return False, None, header
 
 def analyze_file(file_path):
     is_match, sig_dict, header = check_file_signature(file_path)
@@ -53,7 +54,9 @@ def analyze_file(file_path):
         if sig_dict:
             print(f"{file_path} has an unexpected signature.")
             print(f"Expected signature for {sig_dict['file_extension']}: {sig_dict['hex']}")
-            print(f"Actual signature: {list(header)}")
+            print(f"File's current signature: {list(header)}")
+            expected_extension = find_closest_signature(header)['file_extension']
+            print(f"\nThis file should be using the {expected_extension} file extension based on its signature.")
         else:
             print(f"{file_path} has an unknown file signature.")
 
