@@ -37,9 +37,9 @@ def check_file_signature(file_path):
             return True, closest_sig, header
         else:
             return False, None, header
-        
+
 def analyze_file(file_path):
-    is_match, sig_dict = check_file_signature(file_path)
+    is_match, sig_dict, header = check_file_signature(file_path)
 
     if is_match:
         if sig_dict['file_extension'] in ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'pcap', 'pcapng']:
