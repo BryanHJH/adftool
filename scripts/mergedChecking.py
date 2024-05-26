@@ -24,20 +24,15 @@ def check_file_signature(file_path):
     file_ext = os.path.splitext(file_path)[1][1:].lower()
     header = get_file_signature(file_path)
 
-    if file_ext:
-        for sig_dict in SIGNATURES:
-            if sig_dict['file_extension'] == file_ext:
-                sig_bytes = bytes([b for b in sig_dict['hex'] if b is not None])
-                if len(sig_bytes) >= 8 and header[:len(sig_bytes)].startswith(sig_bytes[:8]):
-                    return True, sig_dict, header
-        return False, find_closest_signature(header), header
-    else:
-        closest_sig = find_closest_signature(header)
-        if closest_sig:
-            sig_bytes = bytes([b for b in closest_sig['hex'] if b is not None])
-            if len(sig_bytes) >= 8 and header[:len(sig_bytes)].startswith(sig_bytes[:8]):
-                return True, closest_sig, header
-        return False, None, header
+    if file_ext in ['pcap', 'pcapng']:
+        return True, {'file_extension': file_ext, 'description': 'Network packet capture'}, header
+
+    for sig_dict in SIGNATURES:
+        sig_bytes = bytes([b for b in sig_dict['hex'] if b is not None])
+        if header[:len(sig_bytes)] == sig_bytes:
+            return True, sig_dict, header
+
+    return False, find_closest_signature(header), header
 
 def analyze_file(file_path):
     is_match, sig_dict, header = check_file_signature(file_path)
@@ -56,12 +51,13 @@ def analyze_file(file_path):
             print(f"Expected signature for {sig_dict['file_extension']}: {sig_dict['hex']}")
             print(f"File's current signature: {list(header)}")
             expected_extension = find_closest_signature(header)['file_extension']
-            print(f"\nThis file should be using the {expected_extension} file extension based on its signature.")
+            print(f"This file should be using the {expected_extension} file extension based on its signature.")
         else:
             print(f"{file_path} has an unknown file signature.")
 
 def process_input(input_path):
-    input_path = os.path.abspath(input_path)
+    input_path = os.path.abspath(input_path)  # Convert to absolute path
+
     if os.path.isfile(input_path):
         analyze_file(input_path)
     elif os.path.isdir(input_path):
