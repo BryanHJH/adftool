@@ -8,7 +8,7 @@ def get_file_signature(file_path, max_bytes=32):
         header = f.read(max_bytes)
     return header
 
-def find_closest_signature(header):
+def find_closest_signature(header):  # sourcery skip: comprehension-to-generator
     closest_sig = None
     min_diff = float('inf')
     for sig_dict in SIGNATURES:
@@ -20,7 +20,7 @@ def find_closest_signature(header):
                 closest_sig = sig_dict
     return closest_sig
 
-def check_file_signature(file_path):
+def check_file_signature(file_path):  # sourcery skip: comprehension-to-generator
     file_ext = os.path.splitext(file_path)[1][1:].lower()
     header = get_file_signature(file_path)
 
@@ -34,15 +34,19 @@ def check_file_signature(file_path):
 
     return False, find_closest_signature(header), header
 
-def analyze_file(file_path):
+def analyze_file(file_path):  # sourcery skip: extract-method, merge-else-if-into-elif
     is_match, sig_dict, header = check_file_signature(file_path)
 
     if is_match:
         if sig_dict['file_extension'] in ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'pcap', 'pcapng']:
             print(f"Analyzing {file_path} with steganalysis and packet capture analysis...")
-            result_dir = f"../results/results_{os.path.basename(file_path)}"
-            os.makedirs(result_dir, exist_ok=True)
-            subprocess.run(['./analysis.sh', file_path, result_dir], check=True)
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            # parent_dir = os.path.dirname(script_dir)
+            # result_dir = os.path.join(parent_dir, "results", f"results_{os.path.basename(file_path)}")
+            # result_dir = f"../results/results_{os.path.basename(file_path)}"
+            # os.makedirs(result_dir, exist_ok=True)
+            analysis_script = os.path.join(script_dir, "analysis.sh")
+            subprocess.run([analysis_script, file_path], check=True)
         else:
             print(f"{file_path} is a {sig_dict['description']} file.")
     else:
