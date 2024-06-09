@@ -1,6 +1,6 @@
 #!/bin/bash
 
-analyze_zsteg() {
+binwalk() {
     file="$1"
     result_dir="$2"
     verbose="$3"
@@ -9,11 +9,11 @@ analyze_zsteg() {
     error_file="$result_dir/errors.txt"
     exec 2> "$error_file"
 
-    zsteg_output=$(zsteg "$file" | grep -E "extradata|text|UTF-8")
-    ["$verbose" = true] && echo -e "zsteg results:\n"
-    ["$verbose" = true] && echo -e "$zsteg_output"    
-    echo -e "\nzsteg results:" >> "$result_dir/results.txt"
-    echo "$zsteg_output" >> "$result_dir/results.txt"
+    binwalk_output=$(binwalk -e -M -C "$result_dir" "$file")
+    ["$verbose" = true] && echo -e "Binwalk Results:\n"
+    ["$verbose" = true] && echo -e "$binwalk_output"
+    echo -e "\nbinwalk results:" >> "$result_file"
+    echo "$binwalk_output" >> "$result_file"
 }
 
 verbose=false
@@ -25,4 +25,4 @@ elif [ "${!#}" = "-v" ] || [ "${!#}" = "--verbose" ]; then
     unset "$#"
 fi
 
-analyze_zsteg "$1" "$2" "$verbose"
+binwalk() "$1" "$verbose"
