@@ -61,9 +61,6 @@ def analyze_file(file_path, verbose):
         script_dir = os.path.dirname(os.path.abspath(__file__))
         result_dir = os.path.join(os.path.dirname(script_dir), "results", f"results_{os.path.basename(file_path)}")
         
-        if os.path.exists(result_dir):
-            shutil.rmtree(result_dir)
-        
         os.makedirs(result_dir, exist_ok=True)
         
         if sig_dict['file_extension'] in ['jpg', 'jpeg', 'png', 'gif', 'bmp']:
