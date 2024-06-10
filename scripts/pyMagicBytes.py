@@ -1,16 +1,19 @@
 # Autor : FanaticPythoner.
 # Please read the "LICENSE" file before doing anything.
-
+import os
 from os.path import abspath
 from requests import get
 
+db_dir = os.path.dirname(os.path.abspath(__file__))
+db_file = os.path.join(db_dir, "DB.txt")
+
 def _getAllFileTypes():
-    return open('DB','r').readlines()
+    return open(db_file,'r').readlines()
 
 def _updateDBFromGithub():
     try:
         newDB = get('https://raw.githubusercontent.com/FanaticPythoner/pyMagicBytes/master/DB').text
-        with open('DB','w') as f:
+        with open(db_dir,'w') as f:
             f.write(newDB)
     except Exception as e:
         return str(e.args)
