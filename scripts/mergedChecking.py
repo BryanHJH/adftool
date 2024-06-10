@@ -1,6 +1,7 @@
 import os
 import subprocess
 import filetype
+import argparse
 from pyMagicBytes import FileObject
 
 def find_closest_signature(header):
