@@ -25,11 +25,6 @@ analyze_pcap() {
             echo -e "\n$stream_output"
             echo "==================================================================="
         } > "$result_dir/tcp_stream_$stream.txt" 2>/dev/null
-        {
-            tshark -r "$file" -q -z follow,tcp,ascii,$stream 2>/dev/null | sed -n '/==/,/Node 1:/p' 2>/dev/null
-            echo -e "\n$stream_output"
-            echo "==================================================================="
-        } | jq -R -s '{stream: .}' > "$result_dir/tcp_stream_$stream.json" 2>/dev/null
         [ "$verbose" = true ] && echo "TCP stream $stream saved to $result_dir/tcp_stream_$stream.txt (ASCII) and $result_dir/tcp_stream_$stream.json (JSON)"
     done
     echo -e "\nFollowing TCP streams:" >> "$result_dir/results.txt"
@@ -45,11 +40,6 @@ analyze_pcap() {
             echo -e "\n$stream_output"
             echo "==================================================================="
         } > "$result_dir/udp_stream_$stream.txt" 2>/dev/null
-        {
-            tshark -r "$file" -q -z follow,udp,ascii,$stream 2>/dev/null | sed -n '/==/,/Node 1:/p' 2>/dev/null
-            echo -e "\n$stream_output"
-            echo "==================================================================="
-        } | jq -R -s '{stream: .}' > "$result_dir/udp_stream_$stream.json" 2>/dev/null
         [ "$verbose" = true ] && echo "UDP stream $stream saved to $result_dir/udp_stream_$stream.txt (ASCII) and $result_dir/udp_stream_$stream.json (JSON)"
     done
     echo -e "\nFollowing UDP streams:" >> "$result_dir/results.txt"

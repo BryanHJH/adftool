@@ -1,6 +1,6 @@
 import os
-import json
 import subprocess
+import filetype
 from pyMagicBytes import FileObject
 
 def find_closest_signature(header):
@@ -34,13 +34,36 @@ def check_file_signature(file_path):
         print(f"Error occurred while checking file signature: {str(e)}")
         return False, None
 
+def compare_magic_bytes(file_path, guessed_extension):
+    file_obj = FileObject(file_path)
+    header = file_obj.fileStream.read(32)
+    
+    for sig_dict in file_obj.allFileTypes:
+        size, offset, magic_hex, ext, desc = sig_dict.strip().split('|')
+        if ext == guessed_extension:
+            size = int(size)
+            offset = int(offset)
+            file_obj.fileStream.seek(offset)
+            file_magic_bytes = file_obj.fileStream.read(size).hex().upper()
+            expected_magic_bytes = magic_hex
+            
+            if file_magic_bytes == expected_magic_bytes:
+                return True, None
+            else:
+                return False, (file_magic_bytes, expected_magic_bytes)
+    
+    return False, None
+
 def analyze_file(file_path, verbose):
     is_match, sig_dict = check_file_signature(file_path)
-    header = FileObject(file_path).fileStream.read(32)
-
+    
     if is_match:
         script_dir = os.path.dirname(os.path.abspath(__file__))
         result_dir = os.path.join(os.path.dirname(script_dir), "results", f"results_{os.path.basename(file_path)}")
+        
+        if os.path.exists(result_dir):
+            shutil.rmtree(result_dir)
+        
         os.makedirs(result_dir, exist_ok=True)
         
         if sig_dict['file_extension'] in ['jpg', 'jpeg', 'png', 'gif', 'bmp']:
@@ -60,12 +83,40 @@ def analyze_file(file_path, verbose):
         else:
             print(f"{file_path} is a {sig_dict['description']} file.")
     else:
-        expected_extension = find_closest_signature(header)
-        if expected_extension:
-            print(f"{file_path} has an unknown file signature.")
-            print(f"This file should be using the {expected_extension} file extension based on its signature.")
+        guessed_type = filetype.guess(file_path)
+        
+        if guessed_type is not None:
+            guessed_extension = guessed_type.extension
+            print(f"{file_path} has no file extension. Guessed file type: {guessed_extension}")
+            
+            is_match, diff = compare_magic_bytes(file_path, guessed_extension)
+            
+            if is_match:
+                print(f"The magic bytes of {file_path} match the expected magic bytes for {guessed_extension} files.")
+                print(f"Rename the file to include the .{guessed_extension} extension.")
+            else:
+                print(f"The magic bytes of {file_path} do not match the expected magic bytes for {guessed_extension} files.")
+                print(f"File's magic bytes: {diff[0]}")
+                print(f"Expected magic bytes: {diff[1]}")
+            
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            result_dir = os.path.join(os.path.dirname(script_dir), "results", f"results_{os.path.basename(file_path)}")
+            
+            if os.path.exists(result_dir):
+                shutil.rmtree(result_dir)
+            
+            os.makedirs(result_dir, exist_ok=True)
+            
+            with open(os.path.join(result_dir, "magic_bytes_comparison.txt"), "w") as f:
+                if is_match:
+                    f.write(f"The magic bytes of {file_path} match the expected magic bytes for {guessed_extension} files.\n")
+                    f.write(f"Rename the file to include the .{guessed_extension} extension.\n")
+                else:
+                    f.write(f"The magic bytes of {file_path} do not match the expected magic bytes for {guessed_extension} files.\n")
+                    f.write(f"File's magic bytes: {diff[0]}\n")
+                    f.write(f"Expected magic bytes: {diff[1]}\n")
         else:
-            print(f"{file_path} has an unknown file signature.")
+            print(f"{file_path} has an unknown file type.")
 
 def process_input(input_path, verbose):
     input_path = os.path.abspath(input_path)  # Convert to absolute path
