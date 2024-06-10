@@ -48,9 +48,11 @@ def analyze_file(file_path, verbose):
             outguess_script = os.path.join(script_dir, "outguess_analysis.sh")
             stegoveritas_script = os.path.join(script_dir, "stegoveritas_analysis.sh")
             zsteg_script = os.path.join(script_dir, "zsteg_analysis.sh")
+            binwalk_script = os.path.join(script_dir, "binwalk.sh")
             subprocess.run([outguess_script, file_path, result_dir, "-v" if verbose else ""], check=True)
             subprocess.run([stegoveritas_script, file_path, result_dir, "-v" if verbose else ""], check=True)
             subprocess.run([zsteg_script, file_path, result_dir, "-v" if verbose else ""], check=True)
+            subprocess.run([binwalk_script, file_path, result_dir, "-v" if verbose else ""], check=True)
         elif sig_dict['file_extension'] in ['pcap', 'pcapng']:
             print(f"Analyzing {file_path} with packet capture analysis...")
             pcap_script = os.path.join(script_dir, "pcap_analysis.sh")
