@@ -13,7 +13,7 @@ This is a Final Year Project for APD3F2311CS(CYB). This tool is mainly developed
 
 ### Network Packet analysis tools
 
-- [ ] tshark
+- [x] tshark
 
 ### Memory analysis
 
