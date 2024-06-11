@@ -2,6 +2,11 @@ import os
 import subprocess
 import filetype
 import argparse
+import shutil
+
+import sys
+# Required to be able to import files from other folders
+sys.path.insert(1, os.path.join(os.path.dirname(__file__), '../src'))
 from pyMagicBytes import FileObject
 
 def find_closest_signature(header):
@@ -59,7 +64,9 @@ def analyze_file(file_path, verbose):
     is_match, sig_dict = check_file_signature(file_path)
     
     if is_match:
-        script_dir = os.path.dirname(os.path.abspath(__file__))
+        bin_dir = os.path.dirname(os.path.abspath(__file__))
+        root_dir = os.path.dirname(bin_dir) # ADFTool root folder, /home/bryan/Documents/ADFTool
+        script_dir = os.path.join(root_dir, "scripts")
         result_dir = os.path.join(os.path.dirname(script_dir), "results", f"results_{os.path.basename(file_path)}")
         
         os.makedirs(result_dir, exist_ok=True)
