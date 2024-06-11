@@ -22,7 +22,7 @@ def check_file_signature(file_path):
     try:
         file_obj = FileObject(file_path)
         possible_types = file_obj.getPossibleTypes()
-        
+
         if len(possible_types) > 0:
             sig_dict = {
                 'file_extension': possible_types[0][2][1],
@@ -38,7 +38,7 @@ def check_file_signature(file_path):
 def compare_magic_bytes(file_path, guessed_extension):
     file_obj = FileObject(file_path)
     header = file_obj.fileStream.read(32)
-    
+
     for sig_dict in file_obj.allFileTypes:
         size, offset, magic_hex, ext, desc = sig_dict.strip().split('|')
         if ext == guessed_extension:
@@ -47,7 +47,7 @@ def compare_magic_bytes(file_path, guessed_extension):
             file_obj.fileStream.seek(offset)
             file_magic_bytes = file_obj.fileStream.read(size).hex().upper()
             expected_magic_bytes = magic_hex
-            
+
             if file_magic_bytes == expected_magic_bytes:
                 return True, None
             else:
@@ -66,10 +66,14 @@ def analyze_file(file_path, verbose):
         
         if sig_dict['file_extension'] in ['jpg', 'jpeg', 'png', 'gif', 'bmp']:
             print(f"Analyzing {file_path} with steganalysis...")
+
+            # The path to the scripts
             outguess_script = os.path.join(script_dir, "outguess_analysis.sh")
             stegoveritas_script = os.path.join(script_dir, "stegoveritas_analysis.sh")
             zsteg_script = os.path.join(script_dir, "zsteg_analysis.sh")
-            binwalk_script = os.path.join(script_dir, "binwalk.sh")
+            binwalk_script = os.path.join(script_dir, "binwalk_analysis.sh")
+
+            # Executing the scripts
             subprocess.run([outguess_script, file_path, result_dir, "-v" if verbose else ""], check=True)
             subprocess.run([stegoveritas_script, file_path, result_dir, "-v" if verbose else ""], check=True)
             subprocess.run([zsteg_script, file_path, result_dir, "-v" if verbose else ""], check=True)

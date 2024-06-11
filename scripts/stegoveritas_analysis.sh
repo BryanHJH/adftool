@@ -10,8 +10,8 @@ analyze_stegoveritas() {
     exec 2> "$error_file"
     
     stegoveritas_output=$(stegoveritas -out "$result_dir" "$file")
-    ["$verbose" = true] && echo -e "Stegoveritas results:\n"
-    ["$verbose = true"] && echo "$stegoveritas_output"
+    [ "$verbose" = true ] && echo -e "Stegoveritas results:\n"
+    [ "$verbose" = true ] && echo "$stegoveritas_output"
     echo -e "\nstegoveritas results:" >> "$result_dir/results.txt"
     echo "$stegoveritas_output" >> "$result_dir/results.txt"
 }

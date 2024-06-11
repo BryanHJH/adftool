@@ -28,7 +28,7 @@ analyze_pcap() {
         [ "$verbose" = true ] && echo "TCP stream $stream saved to $result_dir/tcp_stream_$stream.txt (ASCII) and $result_dir/tcp_stream_$stream.json (JSON)"
     done
     echo -e "\nFollowing TCP streams:" >> "$result_dir/results.txt"
-    echo "TCP streams saved to individual files in $result_dir (ASCII and JSON formats)" >> "$result_dir/results.txt"
+    echo "TCP streams saved to individual files in $result_dir (ASCII formats)" >> "$result_dir/results.txt"
     
     # Following UDP streams
     [ "$verbose" = true ] && echo -e "Following UDP streams:"
@@ -43,7 +43,7 @@ analyze_pcap() {
         [ "$verbose" = true ] && echo "UDP stream $stream saved to $result_dir/udp_stream_$stream.txt (ASCII) and $result_dir/udp_stream_$stream.json (JSON)"
     done
     echo -e "\nFollowing UDP streams:" >> "$result_dir/results.txt"
-    echo "UDP streams saved to individual files in $result_dir (ASCII and JSON formats)" >> "$result_dir/results.txt"
+    echo "UDP streams saved to individual files in $result_dir (ASCII formats)" >> "$result_dir/results.txt"
 }
 
 verbose=false

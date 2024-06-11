@@ -1,6 +1,6 @@
 #!/bin/bash
 
-binwalk() {
+analyze_binwalk() {
     file="$1"
     result_dir="$2"
     verbose="$3"
@@ -10,8 +10,8 @@ binwalk() {
     exec 2> "$error_file"
 
     binwalk_output=$(binwalk -e -M -C "$result_dir" "$file")
-    ["$verbose" = true] && echo -e "Binwalk Results:\n"
-    ["$verbose" = true] && echo -e "$binwalk_output"
+    [ "$verbose" = true ] && echo -e "Binwalk Results:\n"
+    [ "$verbose" = true ] && echo -e "$binwalk_output"
     echo -e "\nbinwalk results:" >> "$result_file"
     echo "$binwalk_output" >> "$result_file"
 }
@@ -25,4 +25,4 @@ elif [ "${!#}" = "-v" ] || [ "${!#}" = "--verbose" ]; then
     unset "$#"
 fi
 
-binwalk() "$1" "$verbose"
+analyze_binwalk "$1" "$2" "$verbose"
