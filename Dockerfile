@@ -22,8 +22,11 @@ RUN stegoveritas_install_deps
 # Create a directory for the scripts
 RUN mkdir /home/scripts  
 
-# Create a directory to store the files that will be analysed
-RUN mkdir /home/data && chown -R root:root /home/data && chmod -R 775 /home/data
+# Create a directory for the python executable file
+RUN mkdir /home/bin
+
+# Create a directory for the magic bytes sources
+RUN mkdir /home/src
 
 # Installing python libraries
 COPY requirements.txt /home
@@ -36,12 +39,12 @@ COPY scripts/binwalk_analysis.sh /home/scripts
 COPY scripts/pcap_analysis.sh /home/scripts
 COPY scripts/stegoveritas_analysis.sh /home/scripts
 COPY scripts/zsteg_analysis.sh /home/scripts
-COPY scripts/mergedChecking.py /home/scripts
-COPY scripts/pyMagicBytes.py /home/scripts
-COPY scripts/DB.txt /home/scripts
+COPY bin/analyze.py /home/bin
+COPY src/pyMagicBytes.py /home/src
+COPY src/DB.txt /home/src
 
 # Make the scripts executable
 RUN chmod +x /home/scripts/*
 
 # Set the working directory
-WORKDIR /home/scripts
+WORKDIR /home/bin
