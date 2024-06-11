@@ -3,10 +3,11 @@ FROM kalilinux/kali-rolling
 # Update and install necessary packages
 RUN apt update && apt install -y \
     outguess \
-    python3 \
+    'python3.12' \
     python3-pip \
     ruby \
-    tshark
+    tshark \
+    dos2unix
 
 # Install binwalk
 RUN pip3 install binwalk
@@ -34,16 +35,10 @@ WORKDIR /home
 RUN pip3 install -r requirements.txt
 
 # Copy the scripts to the container
-COPY scripts/outguess_analysis.sh /home/scripts
-COPY scripts/binwalk_analysis.sh /home/scripts
-COPY scripts/pcap_analysis.sh /home/scripts
-COPY scripts/stegoveritas_analysis.sh /home/scripts
-COPY scripts/zsteg_analysis.sh /home/scripts
-COPY bin/analyze.py /home/bin
-COPY src/pyMagicBytes.py /home/src
-COPY src/DB.txt /home/src
+COPY . .
 
 # Make the scripts executable
+RUN dos2unix /home/scripts/*
 RUN chmod +x /home/scripts/*
 
 # Set the working directory
