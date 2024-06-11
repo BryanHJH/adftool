@@ -2,6 +2,7 @@ import os
 import subprocess
 import filetype
 import argparse
+import shutil
 
 import sys
 # Required to be able to import files from other folders
