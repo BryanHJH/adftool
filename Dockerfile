@@ -10,6 +10,7 @@ RUN apt update && apt install -y \
 
 # Install binwalk
 RUN pip3 install binwalk
+RUN apt install -y mtd-utils gzip bzip2 tar arj lhasa p7zip p7zip-full cabextract squashfs-tools sleuthkit default-jdk lzop srecord
 
 # Install zsteg
 RUN gem install zsteg
@@ -25,6 +26,8 @@ RUN mkdir /home/scripts
 RUN mkdir /home/data && chown -R root:root /home/data && chmod -R 775 /home/data
 
 # Installing python libraries
+COPY requirements.txt /home
+WORKDIR /home
 RUN pip3 install -r requirements.txt
 
 # Copy the scripts to the container
@@ -35,6 +38,7 @@ COPY scripts/stegoveritas_analysis.sh /home/scripts
 COPY scripts/zsteg_analysis.sh /home/scripts
 COPY scripts/mergedChecking.py /home/scripts
 COPY scripts/pyMagicBytes.py /home/scripts
+COPY scripts/DB.txt /home/scripts
 
 # Make the scripts executable
 RUN chmod +x /home/scripts/*

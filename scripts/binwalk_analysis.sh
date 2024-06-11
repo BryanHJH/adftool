@@ -7,13 +7,12 @@ analyze_binwalk() {
 
     # Error handling
     error_file="$result_dir/errors.txt"
-    exec 2> "$error_file"
 
-    binwalk_output=$(binwalk -e -M -C "$result_dir" "$file")
+    binwalk_output=$(binwalk -e -M -C "$result_dir" "$file" 2> "$error_file")
     [ "$verbose" = true ] && echo -e "Binwalk Results:\n"
     [ "$verbose" = true ] && echo -e "$binwalk_output"
-    echo -e "\nbinwalk results:" >> "$result_file"
-    echo "$binwalk_output" >> "$result_file"
+    echo -e "\nbinwalk results:" >> "$result_dir/results.txt"
+    echo "$binwalk_output" >> "$result_dir/results.txt"
 }
 
 verbose=false
