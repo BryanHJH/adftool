@@ -43,8 +43,10 @@ commands below:<br>
 
 ```bash
 docker build -t bryanhor/adftool:cmd-only .
-docker run -it -v <local_folder>:/home/data --name <container_name> --rm bryanhor/adftool:cmd-only
+docker run -it -v <local_folder>:/home/data -v <local_folder>:/home/results --name <container_name> --rm bryanhor/adftool:cmd-only
 ```
+
+There are 2 `-v` flags because the first one is to load the folder that has the files that you wish to analyze. This folder is bound to the `/home/data` in the docker container. The second `-v`` flag is to bind the results generated in the docker container to one of your local folders.
 
 The `--name` and `--rm` are optional.<br>
 

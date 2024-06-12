@@ -1,2 +1,16 @@
 filetype
 requests
+blinker
+click
+Flask
+Flask-Sc
+Flask-SQLAlchemy
+greenlet
+itsdangerous
+Jinja2
+MarkupSafe
+pyScss
+six
+SQLAlchemy
+typing_extensions
+Werkzeug
