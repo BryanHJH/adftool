@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 analyze_outguess() {
     file="$1"

@@ -7,58 +7,9 @@ import shutil
 import sys
 # Required to be able to import files from other folders
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), '../src'))
+sys.path.insert(1, os.path.join(os.path.dirname(__file__), '../scripts'))
 from pyMagicBytes import FileObject
-
-def find_closest_signature(header):
-    closest_sig = None
-    min_diff = float('inf')
-    for sig_dict in FileObject.allFileTypes:
-        size, offset, magic_hex, ext, desc = sig_dict.strip().split('|')
-        size = int(size)
-        sig_bytes = bytes.fromhex(magic_hex)
-        if len(header) >= len(sig_bytes):
-            diff = sum(a != b for a, b in zip(header, sig_bytes))
-            if diff < min_diff:
-                min_diff = diff
-                closest_sig = ext
-    return closest_sig
-
-def check_file_signature(file_path):
-    try:
-        file_obj = FileObject(file_path)
-        possible_types = file_obj.getPossibleTypes()
-
-        if len(possible_types) > 0:
-            sig_dict = {
-                'file_extension': possible_types[0][2][1],
-                'description': possible_types[0][3][1]
-            }
-            return True, sig_dict
-        else:
-            return False, None
-    except Exception as e:
-        print(f"Error occurred while checking file signature: {str(e)}")
-        return False, None
-
-def compare_magic_bytes(file_path, guessed_extension):
-    file_obj = FileObject(file_path)
-    header = file_obj.fileStream.read(32)
-
-    for sig_dict in file_obj.allFileTypes:
-        size, offset, magic_hex, ext, desc = sig_dict.strip().split('|')
-        if ext == guessed_extension:
-            size = int(size)
-            offset = int(offset)
-            file_obj.fileStream.seek(offset)
-            file_magic_bytes = file_obj.fileStream.read(size).hex().upper()
-            expected_magic_bytes = magic_hex
-
-            if file_magic_bytes == expected_magic_bytes:
-                return True, None
-            else:
-                return False, (file_magic_bytes, expected_magic_bytes)
-    
-    return False, None
+from magic_byte_analysis import check_file_signature, compare_magic_bytes
 
 def analyze_file(file_path, verbose):
     is_match, sig_dict = check_file_signature(file_path)
@@ -90,7 +41,6 @@ def analyze_file(file_path, verbose):
             pcap_script = os.path.join(script_dir, "pcap_analysis.sh")
             subprocess.run([pcap_script, file_path, result_dir, "-v" if verbose else ""], check=True)
         else:
-            # print(f"{file_path} is a {sig_dict['description']} file.")
             guessed_type = filetype.guess(file_path)
         
             if guessed_type is not None:

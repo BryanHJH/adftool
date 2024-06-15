@@ -3,7 +3,7 @@ requests
 blinker
 click
 Flask
-Flask-Sc
+Flask-Scss
 Flask-SQLAlchemy
 greenlet
 itsdangerous
@@ -14,3 +14,4 @@ six
 SQLAlchemy
 typing_extensions
 Werkzeug
+sqlalchemy-file

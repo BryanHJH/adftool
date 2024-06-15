@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>ADFTool</title>
+{% endblock %}
+
+{% block body %}
+<div class="content">
+    <h1>Contents</h1>
+    <p>Below is the content of the file that was uploaded</p>
+    <br>
+    <p>{{ scan.uploaded_file  }}</p>
+</div>
+{% endblock %}

@@ -1,13 +1,67 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends 'base.html' %}
+
+{% block head %}
     <title>ADFTool</title>
-</head>
-<body>
-    <h1>Welcome to the ADFTool</h1>
-    <p>You can upload either a single file or a single directory to be analysed. If a directory is provided, all the files in the directory will be analysed</p>
-    
-</body>
-</html>
+{% endblock %}
+
+{% block body %}
+    <div class="content">
+        <h1>Welcome to the ADFTool</h1>
+        <p>You can upload either a single file or a single directory to be analysed. If a directory is provided, all the files in the directory will be analysed</p>
+
+        <!-- File upload for analysis -->
+        <form action="/" method="POST" enctype="multipart/form-data">
+            <label>File: </label>
+            <input type="file" name="file" id="file"  />
+            <input type="submit" value="Upload" />
+        </form>
+
+        <!-- Display analysis messages -->
+        {% if signature_message %}
+            <p>{{ signature_message }}</p>
+        {% endif %}
+        {% if magic_bytes_message %}
+            <p>{{ magic_bytes_message|safe }}</p>
+        {% endif %}
+
+        {% if progress_messages %}
+            <h3>Steganalysis Progress:</h3>
+            <ul>
+                {% for message in progress_messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <!-- Displaying the uploaded files in a table format -->
+        {% if scans|length < 1 %}
+            <h4>There are no files uploaded yet... Upload a file now</h4>
+        {% else %}
+            <table>
+                <tr>
+                    <th>Date</th>
+                    <th>File</th>
+                    <th>File Type</th>
+                    <th>File Location</th>
+                    <th>Actions</th>
+                </tr>
+
+                <!-- Displaying all scans that have been stored in the database -->
+                {% for scan in scans %}
+                    <tr>
+                        <td>{{ scan.date.strftime("%Y-%m-%d") }}</td>
+                        <td>{{ scan.filename }}</td>
+                        <td>{{ scan.fileextension }}</td>
+                        <td>{{ scan.resultpath }}</td>
+                        <td>
+                            <a href="/view/{{ scan.id }}">View</a>
+                            <a href="/delete/{{ scan.id }}">Delete</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+
+            </table>
+        {% endif %}
+
+    </div>
+{% endblock %}

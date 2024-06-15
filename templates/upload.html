@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>ADFTool</title>
+{% endblock %}
+
+{% block body %}
+    <div class="content">
+
+        {% if upload_message %}
+        <p>{{ upload_message }}</p>
+        {% endif %}
+
+
+        <a href="/">Go back to the home page</a>
+    </div>
+{% endblock %}
