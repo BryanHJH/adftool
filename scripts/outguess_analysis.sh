@@ -12,8 +12,8 @@ analyze_outguess() {
     outguess_output=$(outguess -r "$file" /dev/null 2>&1 | grep -v "No data extracted")
     [ "$verbose" = true ] && echo -e "$outguess_output"
     [ "$verbose" = true ] && echo -e "Outguess results:\n"
-    echo -e "\nOutguess results:" >> "$result_dir/results.txt"
-    echo "$outguess_output" >> "$result_dir/results.txt"
+    echo -e "\nOutguess results:" >> "$result_dir/OUTGUESS.txt"
+    echo "$outguess_output" >> "$result_dir/OUTGUESS.txt"
 }
 
 verbose=false

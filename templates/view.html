@@ -1,39 +1,70 @@
 {% extends 'base.html' %}
 
 {% block head %}
-<title>ADFTool</title>
-<style>
-    .file-content {
-        background-color: #f0f0f0;
-        padding: 10px;
-        margin-bottom: 20px;
-        white-space: pre-wrap;
-        word-wrap: break-word;
-    }
-</style>
+    <title>Analysis Results</title>
+    <style>
+        .file-content {
+            background-color: #f0f0f0;
+            padding: 10px;
+            margin-bottom: 20px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .image-content {
+            background-color: #f0f0f0;
+            padding: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .image-content img {
+            max-width: 200px;
+            max-height: 200px;
+            margin: 5px;
+        }
+    </style>
 {% endblock %}
 
 {% block body %}
-<div class="content">
-    <h1>Analysis Results for {{ scan.filename }}</h1>
-    <p>File Type: {{ scan.filetype }}</p>
-    <p>Analysis Date: {{ scan.date.strftime("%Y-%m-%d") }}</p>
+    <div class="content">
+        <h1>Analysis Results for {{ scan.filename }}</h1>
+        <p>File Type: {{ scan.fileextension }}</p>
+        <p>Analysis Date: {{ scan.date.strftime("%Y-%m-%d") }}</p>
 
-    <h2>Result Files:</h2>
-    <ul>
+        <h2>Result Files:</h2>
+        <ul>
+            {% for file in result_files %}
+                <li>
+                    <a href="{{ url_for('download_result', scan_id=scan.id, filename=file) }}">{{ file }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <form action="{{ url_for('download_all_results', scan_id=scan.id) }}" method="post">
+            <button type="submit">Download All</button>
+        </form>
+
+        <h2>File Contents:</h2>
         {% for file in result_files %}
-        <li>
-            <a href="{{ url_for('download_result', scan_id=scan.id, filename=file)}}">{{ file }}</a>
-        </li>
+            {% if file_contents.get(file) %}
+                {% set content = file_contents[file] %}
+                {% if content|length > 0 %}
+                    <h3>{{ file }}</h3>
+                    <div class="file-content">{{ content }}</div>
+                {% endif %}
+            {% endif %}
         {% endfor %}
-    </ul>
 
-    <h2>File Content:</h2>
-    {% for file, content in file_contents.items() %}
-    <h3>{{ file }}</h3>
-    <div class="file-content">{{ content }}</div>
-    {% endfor %}
+        <h2>Images:</h2>
+        <div class="image-content">
+            {% for image in images %}
+                <img src="{{ url_for('get_image', scan_id=scan.id, filename=image) }}" alt="{{ image }}">
+            {% endfor %}
+        </div>
 
-    <a href="/">Back to Home</a>
-</div>
+        <a href="/">Back to Home</a>
+    </div>
 {% endblock %}

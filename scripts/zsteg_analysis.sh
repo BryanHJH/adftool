@@ -12,8 +12,8 @@ analyze_zsteg() {
     zsteg_output=$(zsteg "$file" | grep -E "extradata|text|UTF-8")
     [ "$verbose" = true ] && echo -e "zsteg results:\n"
     [ "$verbose" = true ] && echo -e "$zsteg_output"    
-    echo -e "\nzsteg results:" >> "$result_dir/results.txt"
-    echo "$zsteg_output" >> "$result_dir/results.txt"
+    echo -e "\nzsteg results:" >> "$result_dir/ZSTEG.txt"
+    echo "$zsteg_output" >> "$result_dir/ZSTEG.txt"
 }
 
 verbose=false

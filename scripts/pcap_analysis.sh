@@ -12,8 +12,8 @@ analyze_pcap() {
                                        --export-objects "smb,$result_dir/smb_objects" \
                                        --export-objects "tftp,$result_dir/tftp_objects" 2>/dev/null)
     [ "$verbose" = true ] && echo "$tshark_output"
-    echo -e "\nExtracting objects using tshark:" >> "$result_dir/results.txt"
-    echo "$tshark_output" >> "$result_dir/results.txt"
+    echo -e "\nExtracting objects using tshark:" >> "$result_dir/TSHARK.txt"
+    echo "$tshark_output" >> "$result_dir/TSHARK.txt"
     
     # Following TCP streams
     [ "$verbose" = true ] && echo -e "Following TCP streams:"
@@ -27,8 +27,8 @@ analyze_pcap() {
         } > "$result_dir/tcp_stream_$stream.txt" 2>/dev/null
         [ "$verbose" = true ] && echo "TCP stream $stream saved to $result_dir/tcp_stream_$stream.txt (ASCII) and $result_dir/tcp_stream_$stream.json (JSON)"
     done
-    echo -e "\nFollowing TCP streams:" >> "$result_dir/results.txt"
-    echo "TCP streams saved to individual files in $result_dir (ASCII formats)" >> "$result_dir/results.txt"
+    echo -e "\nFollowing TCP streams:" >> "$result_dir/TSHARK.txt"
+    echo "TCP streams saved to individual files in $result_dir (ASCII formats)" >> "$result_dir/TSHARK.txt"
     
     # Following UDP streams
     [ "$verbose" = true ] && echo -e "Following UDP streams:"
@@ -42,8 +42,8 @@ analyze_pcap() {
         } > "$result_dir/udp_stream_$stream.txt" 2>/dev/null
         [ "$verbose" = true ] && echo "UDP stream $stream saved to $result_dir/udp_stream_$stream.txt (ASCII) and $result_dir/udp_stream_$stream.json (JSON)"
     done
-    echo -e "\nFollowing UDP streams:" >> "$result_dir/results.txt"
-    echo "UDP streams saved to individual files in $result_dir (ASCII formats)" >> "$result_dir/results.txt"
+    echo -e "\nFollowing UDP streams:" >> "$result_dir/TSHARK.txt"
+    echo "UDP streams saved to individual files in $result_dir (ASCII formats)" >> "$result_dir/TSHARK.txt"
 }
 
 verbose=false

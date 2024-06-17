@@ -11,7 +11,7 @@ def write_results(file_path, signature_message, magic_bytes_message):
     script_dir = os.path.dirname(os.path.abspath(__file__))
     result_dir = os.path.join(os.path.dirname(script_dir), "results", f"results_{os.path.basename(file_path)}")
     os.makedirs(result_dir, exist_ok=True)
-    with open(os.path.join(result_dir, "analysis_results.txt"), "w") as f:
+    with open(os.path.join(result_dir, "MAGIC_BYTES_ANALYSIS.txt"), "w") as f:
         f.write(signature_message + "\n")
         f.write(magic_bytes_message + "\n")
 

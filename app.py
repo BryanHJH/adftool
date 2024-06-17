@@ -1,9 +1,9 @@
-import uuid
 import os
 import sys
 import subprocess
+import zipfile
 
-from flask import Flask, render_template, request, redirect, send_from_directory
+from flask import Flask, render_template, request, send_from_directory, send_file
 from flask_scss import Scss
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
@@ -38,6 +38,28 @@ class Scans(db.Model):
 
     def __repr__(self):
         return '<Scan %r>' % self.id
+    
+def get_result_files(result_path):
+    result_files = []
+    file_contents = {}
+    images = []
+
+    for root, dirs, files in os.walk(result_path):
+        for file in files:
+            file_path = os.path.join(root, file)
+            relative_path = os.path.relpath(file_path, result_path)
+            result_files.append(relative_path)
+
+            if file.endswith('.txt') or file.endswith('.bin'):
+                with open(file_path, 'rb') as f:
+                    content = f.read().decode('utf-8', 'ignore')
+                    if content.strip():
+                        file_contents[relative_path] = content
+
+            elif file.endswith(('.jpg', '.jpeg', '.png', '.gif')):
+                images.append(relative_path)
+
+    return result_files, file_contents, images
 
 #  Index page
 @app.route("/", methods=["POST", "GET"])
@@ -112,20 +134,34 @@ def index():
 @app.route("/view/<int:id>")
 def view(id):
     scan = Scans.query.get_or_404(id)
-    results_files = os.listdir(scan.resultpath)
-    file_contents = {}
+    result_files, file_contents, images = get_result_files(scan.resultpath)
+    result_files.sort()
+    return render_template("view.html", scan=scan, result_files=result_files, file_contents=file_contents, images=images)
 
-    for file in results_files:
-        file_path = os.path.join(scan.resultpath, file)
-        if file.endswith('.txt') or file.endswith('.bin'):
-            with open(file_path, 'rb') as f:
-                file_contents[file] = f.read().decode('utf-8', 'ignore')
-    return render_template("view.html", scan=scan, result_files=results_files, file_contents=file_contents)
-
-@app.route("/download/<int:scan_id>/<path:filename>")
+@app.route("/download_result/<int:scan_id>/<path:filename>")
 def download_result(scan_id, filename):
     scan = Scans.query.get_or_404(scan_id)
     return send_from_directory(scan.resultpath, filename, as_attachment=True)
+
+@app.route("/download_all/<int:scan_id>", methods=["POST"])
+def download_all_results(scan_id):
+    scan = Scans.query.get_or_404(scan_id)
+    result_files, _, _ = get_result_files(scan.resultpath)
+
+    zip_buffer = BytesIO()
+    with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
+        for file in result_files:
+            file_path = os.path.join(scan.resultpath, file)
+            zip_file.write(file_path, file)
+
+    zip_buffer.seek(0)
+    return send_file(zip_buffer, as_attachment=True, download_name=f"{scan.filename}_results.zip")
+
+@app.route("/image/<int:scan_id>/<path:filename>")
+def get_image(scan_id, filename):
+    scan = Scans.query.get_or_404(scan_id)
+    image_path = os.path.join(scan.resultpath, filename)
+    return send_file(image_path)
 
 if __name__ in "__main__":
     with app.app_context():
