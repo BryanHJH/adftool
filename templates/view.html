@@ -2,30 +2,6 @@
 
 {% block head %}
     <title>Analysis Results</title>
-    <style>
-        .file-content {
-            background-color: #f0f0f0;
-            padding: 10px;
-            margin-bottom: 20px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            max-height: 600px;
-            overflow-y: auto;
-        }
-        .image-content {
-            background-color: #f0f0f0;
-            padding: 10px;
-            margin-bottom: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        .image-content img {
-            max-width: 200px;
-            max-height: 200px;
-            margin: 5px;
-        }
-    </style>
 {% endblock %}
 
 {% block body %}
@@ -35,13 +11,15 @@
         <p>Analysis Date: {{ scan.date.strftime("%Y-%m-%d") }}</p>
 
         <h2>Result Files:</h2>
-        <ul>
-            {% for file in result_files %}
-                <li>
-                    <a href="{{ url_for('download_result', scan_id=scan.id, filename=file) }}">{{ file }}</a>
-                </li>
-            {% endfor %}
-        </ul>
+        <div class="result-files">
+            <ul>
+                {% for file in result_files %}
+                    <li>
+                        <a href="{{ url_for('download_result', scan_id=scan.id, filename=file) }}">{{ file }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
 
         <form action="{{ url_for('download_all_results', scan_id=scan.id) }}" method="post">
             <button type="submit">Download All</button>

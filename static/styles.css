@@ -1,4 +1,35 @@
 body {
   background-color: antiquewhite;
   font-family: Arial, sans-serif;
+}
+
+.file-content {
+  background-color: #f0f0f0;
+  padding: 10px;
+  margin-bottom: 20px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.image-content {
+  background-color: #f0f0f0;
+  padding: 10px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.image-content img {
+  max-width: 200px;
+  max-height: 200px;
+  margin: 5px;
+}
+
+.result-files {
+  max-height: 300px;
+  overflow-y: auto;
+  margin: 5px;
 }/*# sourceMappingURL=styles.css.map */
