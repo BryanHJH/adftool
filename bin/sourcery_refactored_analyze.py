@@ -12,28 +12,31 @@ from input_processor import process_input
 
 def analyze_file(file_path, verbose):
     is_match, sig_dict = check_file_signature(file_path)
-    
+
     if is_match:
-        bin_dir = os.path.dirname(os.path.abspath(__file__))
-        root_dir = os.path.dirname(bin_dir) # ADFTool root folder, /home/bryan/Documents/ADFTool
-        modules_dir = os.path.join(root_dir, "modules")
-        result_dir = os.path.join(os.path.dirname(modules_dir), "results", f"results_{os.path.basename(file_path)}")
-        
-        os.makedirs(result_dir, exist_ok=True)
-        
-        if sig_dict['file_extension'] in ['jpg', 'jpeg', 'png', 'gif', 'bmp']:
-            analyze_image_file(file_path, verbose)
-        elif sig_dict['file_extension'] in ['pcap', 'pcapng']:
-            analyze_pcap(file_path, verbose)
-        else:
-            is_match, signature_message, magic_bytes_message, file_extension, has_extension = analyze_file_magic_bytes(file_path, verbose)
-            
-            if not is_match:
-                print(signature_message)
-                print(magic_bytes_message)
+        in_depth_analysis(file_path, sig_dict, verbose)
     else:
         is_match, signature_message, magic_bytes_message, file_extension, has_extension = analyze_file_magic_bytes(file_path, verbose)
-        
+
+        if not is_match:
+            print(signature_message)
+            print(magic_bytes_message)
+
+def in_depth_analysis(file_path, sig_dict, verbose):
+    bin_dir = os.path.dirname(os.path.abspath(__file__))
+    root_dir = os.path.dirname(bin_dir) # ADFTool root folder, /home/bryan/Documents/ADFTool
+    modules_dir = os.path.join(root_dir, "modules")
+    result_dir = os.path.join(os.path.dirname(modules_dir), "results", f"results_{os.path.basename(file_path)}")
+
+    os.makedirs(result_dir, exist_ok=True)
+
+    if sig_dict['file_extension'] in ['jpg', 'jpeg', 'png', 'gif', 'bmp']:
+        analyze_image_file(file_path, verbose)
+    elif sig_dict['file_extension'] in ['pcap', 'pcapng']:
+        analyze_pcap(file_path, verbose)
+    else:
+        is_match, signature_message, magic_bytes_message, file_extension, has_extension = analyze_file_magic_bytes(file_path, verbose)
+
         if not is_match:
             print(signature_message)
             print(magic_bytes_message)
