@@ -22,14 +22,17 @@ This is a Final Year Project for APD3F2311CS(CYB). This tool is mainly developed
 
 ## User Interface
 
-This tool will include a Graphical User Interface (GUI), mainly to satisfy my FYP requirement. The GUI is to be built using Python Flask.
+This tool will include a Graphical User Interface (GUI), mainly to satisfy my FYP requirement. The GUI is to be built using Python Flask. However, if the user prefers using the command line to interact with the tool, they can do so too. 
 
 ### TODO
 
-- [ ] Implement a GUI
-- [ ] Store results into a SQLite database instead of a results/ folder
+None for now
 
 ## USAGE
+
+### Cloning the GitHub repo
+
+### Obtaining the Docker image
 
 To use ADFTool, you will need to first pull the image from Docker using the command below:<br>
 `docker pull docker push bryanhor/adftool:cmd-only`
@@ -72,6 +75,8 @@ The python script will perform the following tasks:
 4. If a file with no extension is provided, the python script will guess the file type based on its magic bytes and then compare it with the correct magic bytes (based on the sources in the `src` folder) and then inform the user if any changes need to be made to the magic bytes.
 
 The output will be stored in the `/home/results/` directory.
+
+### GUI Usage
 
 ## REMOVAL
 
