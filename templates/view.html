@@ -2,13 +2,38 @@
 
 {% block head %}
 <title>ADFTool</title>
+<style>
+    .file-content {
+        background-color: #f0f0f0;
+        padding: 10px;
+        margin-bottom: 20px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+</style>
 {% endblock %}
 
 {% block body %}
 <div class="content">
-    <h1>Contents</h1>
-    <p>Below is the content of the file that was uploaded</p>
-    <br>
-    <p>{{ scan.uploaded_file  }}</p>
+    <h1>Analysis Results for {{ scan.filename }}</h1>
+    <p>File Type: {{ scan.filetype }}</p>
+    <p>Analysis Date: {{ scan.date.strftime("%Y-%m-%d") }}</p>
+
+    <h2>Result Files:</h2>
+    <ul>
+        {% for file in result_files %}
+        <li>
+            <a href="{{ url_for('download_result', scan_id=scan.id, filename=file)}}">{{ file }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <h2>File Content:</h2>
+    {% for file, content in file_contents.items() %}
+    <h3>{{ file }}</h3>
+    <div class="file-content">{{ content }}</div>
+    {% endfor %}
+
+    <a href="/">Back to Home</a>
 </div>
 {% endblock %}

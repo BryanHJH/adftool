@@ -69,6 +69,7 @@ def compare_magic_bytes(file_path, guessed_extension):
 def analyze_file(file_path, verbose):
     is_match, sig_dict = check_file_signature(file_path)
     current_extension = os.path.splitext(file_path)[1][1:].lower()
+    has_extension = bool(current_extension)
     
     if is_match:
         if current_extension:
@@ -124,7 +125,7 @@ def analyze_file(file_path, verbose):
         print(magic_bytes_message)
         print(sig_dict["file_extension"])
     
-    return is_match, signature_message, magic_bytes_message, file_extension
+    return is_match, signature_message, magic_bytes_message, file_extension, has_extension
 
 def process_input(input_path, verbose):
     input_path = os.path.abspath(input_path)  # Convert to absolute path

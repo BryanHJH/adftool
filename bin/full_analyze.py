@@ -1,15 +1,12 @@
 import os
-import subprocess
-import filetype
 import argparse
-import shutil
-
 import sys
+
 # Required to be able to import files from other folders
-sys.path.insert(1, os.path.join(os.path.dirname(__file__), '../src'))
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), '../scripts'))
-from pyMagicBytes import FileObject
-from magic_byte_analysis import check_file_signature, compare_magic_bytes
+from magic_byte_analysis import check_file_signature, analyze_file as analyze_file_magic_bytes
+from image_analyze import analyze_file as analyze_image_file
+from pcap_analyze import analyze_pcap
 
 def analyze_file(file_path, verbose):
     is_match, sig_dict = check_file_signature(file_path)
@@ -23,58 +20,21 @@ def analyze_file(file_path, verbose):
         os.makedirs(result_dir, exist_ok=True)
         
         if sig_dict['file_extension'] in ['jpg', 'jpeg', 'png', 'gif', 'bmp']:
-            print(f"Analyzing {file_path} with steganalysis...")
-
-            # The path to the scripts
-            outguess_script = os.path.join(script_dir, "outguess_analysis.sh")
-            stegoveritas_script = os.path.join(script_dir, "stegoveritas_analysis.sh")
-            zsteg_script = os.path.join(script_dir, "zsteg_analysis.sh")
-            binwalk_script = os.path.join(script_dir, "binwalk_analysis.sh")
-
-            # Executing the scripts
-            subprocess.run([outguess_script, file_path, result_dir, "-v" if verbose else ""], check=True)
-            subprocess.run([stegoveritas_script, file_path, result_dir, "-v" if verbose else ""], check=True)
-            subprocess.run([zsteg_script, file_path, result_dir, "-v" if verbose else ""], check=True)
-            subprocess.run([binwalk_script, file_path, result_dir, "-v" if verbose else ""], check=True)
+            analyze_image_file(file_path, verbose)
         elif sig_dict['file_extension'] in ['pcap', 'pcapng']:
-            print(f"Analyzing {file_path} with packet capture analysis...")
-            pcap_script = os.path.join(script_dir, "pcap_analysis.sh")
-            subprocess.run([pcap_script, file_path, result_dir, "-v" if verbose else ""], check=True)
+            analyze_pcap(file_path, verbose)
         else:
-            guessed_type = filetype.guess(file_path)
-        
-            if guessed_type is not None:
-                guessed_extension = guessed_type.extension
-                print(f"{file_path} has no file extension. Guessed file type: {guessed_extension}")
-                
-                is_match, diff = compare_magic_bytes(file_path, guessed_extension)
-                
-                if is_match:
-                    print(f"The magic bytes of {file_path} match the expected magic bytes for {guessed_extension} files.")
-                    print(f"Rename the file to include the .{guessed_extension} extension.")
-                else:
-                    print(f"The magic bytes of {file_path} do not match the expected magic bytes for {guessed_extension} files.")
-                    print(f"File's magic bytes: {diff[0]}")
-                    print(f"Expected magic bytes: {diff[1]}")
-                
-                script_dir = os.path.dirname(os.path.abspath(__file__))
-                result_dir = os.path.join(os.path.dirname(script_dir), "results", f"results_{os.path.basename(file_path)}")
-                
-                os.makedirs(result_dir, exist_ok=True)
-                
-                with open(os.path.join(result_dir, "magic_bytes_comparison.txt"), "w") as f:
-                    if is_match:
-                        f.write(f"The magic bytes of {file_path} match the expected magic bytes for {guessed_extension} files.\n")
-                        f.write(f"Rename the file to include the .{guessed_extension} extension.\n")
-                    else:
-                        f.write(f"The magic bytes of {file_path} do not match the expected magic bytes for {guessed_extension} files.\n")
-                        f.write(f"File's magic bytes: {diff[0]}\n")
-                        f.write(f"Expected magic bytes: {diff[1]}\n")
-                        
-            else:
-                print(f"{file_path} has an unknown file type.")
+            is_match, signature_message, magic_bytes_message, file_extension, has_extension = analyze_file_magic_bytes(file_path, verbose)
+            
+            if not is_match:
+                print(signature_message)
+                print(magic_bytes_message)
     else:
-        print(f"{file_path} has an unknown file type.")
+        is_match, signature_message, magic_bytes_message, file_extension, has_extension = analyze_file_magic_bytes(file_path, verbose)
+        
+        if not is_match:
+            print(signature_message)
+            print(magic_bytes_message)
 
 def process_input(input_path, verbose):
     input_path = os.path.abspath(input_path)  # Convert to absolute path

@@ -7,13 +7,14 @@
 {% block body %}
     <div class="content">
         <h1>Welcome to the ADFTool</h1>
-        <p>You can upload either a single file or a single directory to be analysed. If a directory is provided, all the files in the directory will be analysed</p>
+        <p>You can upload either a single file to be analysed. Once the file has been uploaded, the analysis will begin and take a few minutes to complete. Please be patient while the analysis is being performed and do not refresh the page</p>
 
         <!-- File upload for analysis -->
-        <form action="/" method="POST" enctype="multipart/form-data">
+        <form action="/" method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
             <label>File: </label>
             <input type="file" name="file" id="file"  />
             <input type="submit" value="Upload" />
+            <span id="fileError" style="color: red;"></span>
         </form>
 
         <!-- Display analysis messages -->
@@ -64,4 +65,19 @@
         {% endif %}
 
     </div>
+
+    <script>
+        function validateForm() {
+            var fileInput = document.getElementById('file');
+            var fileError = document.getElementById('fileError');
+
+            if (fileInput.files.length === 0) {
+                fileError.textContent = 'Please choose a file before pressing the upload button.';
+                return false;
+            }
+
+            fileError.textContent = '';
+            return true;
+        }
+    </script>
 {% endblock %}

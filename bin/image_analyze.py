@@ -2,13 +2,7 @@ import os
 import subprocess
 import argparse
 
-import sys
-# Required to be able to import files from other folders
-sys.path.insert(1, os.path.join(os.path.dirname(__file__), '../src'))
-from pyMagicBytes import FileObject
-
 def analyze_file(file_path, verbose):
-
     # Directories
     bin_dir = os.path.dirname(os.path.abspath(__file__))
     root_dir = os.path.dirname(bin_dir) # ADFTool root folder, /home/bryan/Documents/ADFTool
