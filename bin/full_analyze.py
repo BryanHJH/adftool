@@ -10,7 +10,7 @@ from image_analyze import analyze_file as analyze_image_file
 from pcap_analyze import analyze_pcap
 from input_processor import process_input
 
-def analyze_file(file_path, verbose):
+def analyze_file(file_path, verbose):  # sourcery skip: extract-method
     is_match, sig_dict = check_file_signature(file_path)
     
     if is_match:

@@ -34,7 +34,7 @@ fi
 
 # Run the Docker container
 echo "Running the Docker container..."
-docker run -it -v "$data_path":/home/data -v "$result_path":/home/results --name adftool-container adftool bash
+docker run -it -v "$data_path":/home/data -v "$result_path":/home/results adftool bash
 
 # Check if the container is running
 if [ "$(docker ps -q -f name=adftool-container)" ]; then

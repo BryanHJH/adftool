@@ -40,9 +40,17 @@ RUN chmod +x /home/modules/*
 
 # Set the working directory
 WORKDIR /home/
+RUN echo 'export PATH=/home/modules:$PATH' > /home/.bashrc
+RUN echo "alias cls='clear'" >> /root/.bashrc
+RUN echo "alias full_analyze='python3 /home/bin/full_analyze.py'" >> /root/.bashrc
+RUN echo "alias image_analyze='python3 /home/bin/image_analyze.py'" >> /root/.bashrc
+RUN echo "alias pcap_analyze='python3 /home/bin/pcap_analyze.py'" >> /root/.bashrc
+RUN echo "alias magic_byte_analyze='python3 /home/modules/magic_byte_analyis.py'" >> /root/.bashrc
 
 # Exposing the port that the Flask application will be running on
 EXPOSE 5001
 
 #  Set the entry point to run the Flask app
 CMD ["python3", "app.py"]
+
+ENV SHELL=/bin/bash
