@@ -2,6 +2,8 @@
 
 {% block head %}
     <title>Analysis Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 {% endblock %}
 
 {% block body %}
@@ -26,12 +28,24 @@
         </form>
 
         <h2>File Contents:</h2>
+        <input type="text" id="search-bar" placeholder="Search for keywords...">
+        <button id="search-button">Search</button>
+        <button id="clear-button">Clear</button>
+
+        <form action="{{ url_for('download_report', scan_id=scan.id) }}" method="post">
+            <button type="submit">Download Report As</button>
+            <select name="report_format">
+                <option value="pdf">PDF</option>
+                <option value="docx">DOCX</option>
+            </select>
+        </form>
+
         {% for file in result_files %}
             {% if file_contents.get(file) %}
                 {% set content = file_contents[file] %}
                 {% if content|length > 0 %}
                     <h3>{{ file }}</h3>
-                    <div class="file-content">{{ content }}</div>
+                    <div class="file-content" id="content-{{ loop.index }}">{{ content }}</div>
                 {% endif %}
             {% endif %}
         {% endfor %}
@@ -45,4 +59,54 @@
 
         <a href="/">Back to Home</a>
     </div>
+
+    <script>
+        $(document).ready(function() {
+            var originalContents = {};
+            $('.file-content').each(function() {
+                originalContents[$(this).attr('id')] = $(this).html();
+            });
+    
+            function restoreOriginalContents() {
+                $('.file-content').each(function() {
+                    $(this).html(originalContents[$(this).attr('id')]);
+                    $(this).show();
+                });
+            }
+    
+            $('#search-button').click(function() {
+                var keyword = $('#search-bar').val().toLowerCase();
+                $('.file-content').each(function() {
+                    var content = originalContents[$(this).attr('id')].toLowerCase();
+                    var lines = content.split('\n');
+                    var filteredLines = lines.filter(line => line.includes(keyword));
+                    if (filteredLines.length > 0) {
+                        $(this).html(filteredLines.join('<br>'));
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+    
+            $('#clear-button').click(function() {
+                $('#search-bar').val('');
+                restoreOriginalContents();
+            });
+    
+            $('form[action^="/download_report/"]').submit(function(e) {
+                e.preventDefault();
+                var filteredContent = {};
+                $('.file-content:visible').each(function() {
+                    filteredContent[$(this).prev('h3').text()] = $(this).text();
+                });
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'filtered_content',
+                    value: JSON.stringify(filteredContent)
+                }).appendTo($(this));
+                this.submit();
+            });
+        });
+    </script>
 {% endblock %}

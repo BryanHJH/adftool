@@ -37,6 +37,7 @@ COPY . .
 # Make the scripts executable
 RUN dos2unix /home/modules/*
 RUN chmod +x /home/modules/*
+RUN dos2unix *.sh
 
 # Set the working directory
 WORKDIR /home/

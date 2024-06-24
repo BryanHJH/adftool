@@ -2,13 +2,22 @@ import os
 import sys
 import subprocess
 import zipfile
+import logging
+import re
+import json
 
-from flask import Flask, render_template, request, send_from_directory, send_file
-from flask_scss import Scss
+from flask import Flask, render_template, request, send_from_directory, send_file, current_app
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
+from werkzeug.datastructures import Headers
 from io import BytesIO
 from datetime import datetime
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.units import inch
+from docx import Document
+from html import escape
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), './modules'))
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), './bin'))
@@ -18,6 +27,7 @@ from pcap_analyze import analyze_pcap as pcapanalysis
 
 # Application
 app = Flask(__name__)
+app.logger.setLevel(logging.INFO)
 
 # Database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
@@ -37,6 +47,19 @@ class Scans(db.Model):
     def __repr__(self):
         return '<Scan %r>' % self.id
     
+def sanitize_for_xml(text):
+    # Remove NULL bytes
+    text = text.replace('\x00', '')
+    # Replace other control characters with space
+    text = re.sub(r'[\x01-\x1F\x7F]', ' ', text)
+    return text
+
+def clean_content_for_pdf(content):
+    content = re.sub('<[^<]+?>', '', content)
+    content = escape(content)
+    content = re.sub(r'\n+', '\n', content)
+    return content
+
 def get_result_files(result_path):
     result_files = []
     file_contents = {}
@@ -143,6 +166,72 @@ def download_all_results(scan_id):
     zip_buffer.seek(0)
     return send_file(zip_buffer, as_attachment=True, download_name=f"{scan.filename}_results.zip")
 
+@app.route("/download_report/<int:scan_id>", methods=["POST"])
+def download_report(scan_id):
+    try:
+        current_app.logger.info(f"Starting report generation for scan_id: {scan_id}")
+        scan = Scans.query.get_or_404(scan_id)
+        result_files, file_contents, images = get_result_files(scan.resultpath)
+        report_format = request.form.get('report_format', 'pdf')
+        filtered_content = request.form.get('filtered_content', None)
+
+        if filtered_content:
+            file_contents = json.loads(filtered_content)
+
+        current_app.logger.info(f"Generating {report_format} report")
+
+        if report_format == 'pdf':
+            buffer = BytesIO()
+            doc = SimpleDocTemplate(buffer, pagesize=letter, topMargin=0.5*inch, bottomMargin=0.5*inch)
+            styles = getSampleStyleSheet()
+            styles.add(ParagraphStyle(name='Small', fontSize=8, leading=10))
+            story = []
+
+            story.append(Paragraph(f"Analysis Results for {scan.filename}", styles['Title']))
+            story.append(Paragraph(f"File Type: {scan.fileextension}", styles['Normal']))
+            story.append(Paragraph(f"Analysis Date: {scan.date.strftime('%Y-%m-%d')}", styles['Normal']))
+            story.append(Spacer(1, 12))
+
+            for file, content in file_contents.items():
+                story.append(Paragraph(f"File: {file}", styles['Heading2']))
+                cleaned_content = clean_content_for_pdf(content)
+                story.append(Paragraph(cleaned_content, styles['Small']))
+                story.append(Spacer(1, 12))
+
+            doc.build(story)
+            buffer.seek(0)
+            current_app.logger.info("PDF report generated successfully")
+            
+            headers = Headers()
+            headers.add('Content-Disposition', 'attachment', filename=f"{scan.filename}_report.pdf")
+            return current_app.response_class(buffer, mimetype='application/pdf', headers=headers)
+
+        elif report_format == 'docx':
+            buffer = BytesIO()
+            doc = Document()
+            doc.add_heading(f"Analysis Results for {scan.filename}", level=1)
+            doc.add_paragraph(f"File Type: {scan.fileextension}")
+            doc.add_paragraph(f"Analysis Date: {scan.date.strftime('%Y-%m-%d')}")
+
+            for file, content in file_contents.items():
+                doc.add_heading(f"File: {file}", level=2)
+                doc.add_paragraph(sanitize_for_xml(content))
+
+            doc.save(buffer)
+            buffer.seek(0)
+            current_app.logger.info("DOCX report generated successfully")
+            
+            headers = Headers()
+            headers.add('Content-Disposition', 'attachment', filename=f"{scan.filename}_report.docx")
+            return current_app.response_class(buffer, mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document', headers=headers)
+
+        else:
+            current_app.logger.warning(f"Invalid report format requested: {report_format}")
+            return "Invalid report format", 400
+
+    except Exception as e:
+        current_app.logger.error(f"Error in download_report: {str(e)}", exc_info=True)
+        return f"An error occurred: {str(e)}", 500
 @app.route("/image/<int:scan_id>/<path:filename>")
 def get_image(scan_id, filename):
     scan = Scans.query.get_or_404(scan_id)

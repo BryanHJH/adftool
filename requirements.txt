@@ -15,3 +15,5 @@ SQLAlchemy
 typing_extensions
 Werkzeug
 sqlalchemy-file
+reportlab
+python-docx
