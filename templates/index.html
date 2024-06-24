@@ -18,9 +18,6 @@
         </form>
 
         <!-- Display analysis messages -->
-        {% if signature_message %}
-            <p>{{ signature_message }}</p>
-        {% endif %}
         {% if magic_bytes_message %}
             <p>{{ magic_bytes_message|safe }}</p>
         {% endif %}

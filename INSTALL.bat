@@ -19,7 +19,7 @@ if %errorlevel% neq 0 (
 
 rem Run the Docker container
 echo Running the Docker container...
-docker run -d -p 5001:5001 adftool
+docker run -d -p 5001:5001 --name adftool-container adftool
 
 rem Check if the container is running
 docker ps -q -f name=adftool-container >nul 2>nul

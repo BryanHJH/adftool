@@ -19,7 +19,7 @@ fi
 
 # Run the Docker container
 echo "Running the Docker container..."
-docker run -d -p 5001:5001 adftool
+docker run -d -p 5001:5001 --name adftool-container adftool
 
 # Check if the container is running
 if [ $(docker ps -q -f name=adftool-container) ]; then
