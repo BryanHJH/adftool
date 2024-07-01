@@ -166,6 +166,13 @@ def download_all_results(scan_id):
     zip_buffer.seek(0)
     return send_file(zip_buffer, as_attachment=True, download_name=f"{scan.filename}_results.zip")
 
+@app.route("/image/<int:scan_id>/<path:filename>")
+def get_image(scan_id, filename):
+    scan = Scans.query.get_or_404(scan_id)
+    image_path = os.path.join(scan.resultpath, filename)
+    return send_file(image_path)
+
+# Downloading scan report
 @app.route("/download_report/<int:scan_id>", methods=["POST"])
 def download_report(scan_id):
     try:
@@ -232,12 +239,7 @@ def download_report(scan_id):
     except Exception as e:
         current_app.logger.error(f"Error in download_report: {str(e)}", exc_info=True)
         return f"An error occurred: {str(e)}", 500
-@app.route("/image/<int:scan_id>/<path:filename>")
-def get_image(scan_id, filename):
-    scan = Scans.query.get_or_404(scan_id)
-    image_path = os.path.join(scan.resultpath, filename)
-    return send_file(image_path)
-
+    
 if __name__ in "__main__":
     with app.app_context():
         db.drop_all()

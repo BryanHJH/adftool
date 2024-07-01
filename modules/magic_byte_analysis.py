@@ -1,11 +1,14 @@
 import os
 import filetype
 import argparse
-
 import sys
+
 # Required to be able to import files from other folders
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), '../src'))
+sys.path.insert(1, os.path.join(os.path.dirname(__file__), '../utils'))
 from pyMagicBytes import FileObject
+from input_processor import process_input
+
 
 def write_results(file_path, signature_message, magic_bytes_message):
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -127,23 +130,10 @@ def analyze_file(file_path, verbose):
     
     return is_match, signature_message, magic_bytes_message, file_extension, has_extension
 
-def process_input(input_path, verbose):
-    input_path = os.path.abspath(input_path)  # Convert to absolute path
-
-    if os.path.isfile(input_path):
-        analyze_file(input_path, verbose)
-    elif os.path.isdir(input_path):
-        for root, dirs, files in os.walk(input_path):
-            for file in files:
-                file_path = os.path.join(root, file)
-                analyze_file(file_path, verbose)
-    else:
-        print(f"Invalid input: {input_path}")
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Analyze files for file signature, magic bytes, and file type guessing.')
     parser.add_argument('input_path', help='File or directory path')
     parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose output')
     args = parser.parse_args()
 
-    process_input(args.input_path, args.verbose)
+    process_input(args.input_path, analyze_file, args.verbose)
