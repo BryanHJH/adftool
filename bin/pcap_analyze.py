@@ -1,12 +1,24 @@
 import os
 import sys
 import argparse
+import warnings
+
+# Suppress potential DeprecationWarnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), '../utils'))
 from input_processor import process_input
 from subprocess_utils import execute_script
 
+def is_pcap_file(file_path):
+    # Check if the file has a .pcap or .pcapng extension
+    return file_path.lower().endswith(('.pcap', '.pcapng'))
+
 def analyze_pcap(file_path, verbose):
+    if not is_pcap_file(file_path):
+        print(f"Error: {file_path} is not a PCAP file.")
+        return None, [f"Error: {file_path} is not a PCAP file."]
+
     bin_dir = os.path.dirname(os.path.abspath(__file__))
     root_dir = os.path.dirname(bin_dir) # ADFTool root folder, /home/bryan/Documents/ADFTool
     modules_dir = os.path.join(root_dir, "modules")
@@ -36,10 +48,33 @@ def analyze_pcap(file_path, verbose):
 
     return subprocesses, progress_messages
 
+def process_input_wrapper(input_path, analyze_func, verbose):
+    if os.path.isfile(input_path):
+        if is_pcap_file(input_path):
+            return process_input(input_path, analyze_func, verbose)
+        else:
+            print(f"Error: {input_path} is not a PCAP file.")
+            return None
+    elif os.path.isdir(input_path):
+        results = []
+        for root, _, files in os.walk(input_path):
+            for file in files:
+                file_path = os.path.join(root, file)
+                if is_pcap_file(file_path):
+                    result = process_input(file_path, analyze_func, verbose)
+                    if result:
+                        results.append(result)
+                else:
+                    print(f"Skipping {file_path}: Not a PCAP file.")
+        return results
+    else:
+        print(f"Error: {input_path} is not a valid file or directory.")
+        return None
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Analyze PCAP files.')
-    parser.add_argument('input_path', help='File or directory path')
+    parser.add_argument('input_path', help='PCAP file or directory path')
     parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose output')
     args = parser.parse_args()
 
-    process_input(args.input_path, analyze_pcap, args.verbose)
+    process_input_wrapper(args.input_path, analyze_pcap, args.verbose)

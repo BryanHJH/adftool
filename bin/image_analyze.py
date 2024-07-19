@@ -1,13 +1,25 @@
 import os
 import sys
 import argparse
+import warnings
+
+# Suppress the DeprecationWarning for imghdr
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+import imghdr
 
 # Required to be able to import files from other folders
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), '../utils'))
 from input_processor import process_input
 from subprocess_utils import execute_script
 
+def is_image_file(file_path):
+    return imghdr.what(file_path) is not None
+
 def analyze_file(file_path, verbose):
+    if not is_image_file(file_path):
+        print(f"Error: {file_path} is not an image file.")
+        return None, [f"Error: {file_path} is not an image file."]
+
     # Directories
     bin_dir = os.path.dirname(os.path.abspath(__file__))
     root_dir = os.path.dirname(bin_dir) # ADFTool root folder, /home/bryan/Documents/ADFTool
@@ -46,10 +58,33 @@ def analyze_file(file_path, verbose):
     
     return subprocesses, progress_messages
 
+def process_input_wrapper(input_path, analyze_func, verbose):
+    if os.path.isfile(input_path):
+        if is_image_file(input_path):
+            return process_input(input_path, analyze_func, verbose)
+        else:
+            print(f"Error: {input_path} is not an image file.")
+            return None
+    elif os.path.isdir(input_path):
+        results = []
+        for root, _, files in os.walk(input_path):
+            for file in files:
+                file_path = os.path.join(root, file)
+                if is_image_file(file_path):
+                    result = process_input(file_path, analyze_func, verbose)
+                    if result:
+                        results.append(result)
+                else:
+                    print(f"Skipping {file_path}: Not an image file.")
+        return results
+    else:
+        print(f"Error: {input_path} is not a valid file or directory.")
+        return None
+
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Analyze files for steganalysis.')
-    parser.add_argument('input_path', help='File or directory path')
+    parser = argparse.ArgumentParser(description='Analyze image files for steganalysis.')
+    parser.add_argument('input_path', help='Image file or directory path')
     parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose output')
     args = parser.parse_args()
 
-    process_input(args.input_path, analyze_file, args.verbose)
+    process_input_wrapper(args.input_path, analyze_file, args.verbose)

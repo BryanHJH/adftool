@@ -39,7 +39,7 @@ docker run -it -v %data_path%:/home/data -v %result_path%:/home/results adftool 
 rem Check if the container is running
 docker ps -q -f name=adftool-container >nul 2>nul
 if %errorlevel% equ 0 (
-    echo ADFTool is now running on http://localhost:5001
+    echo ADFTool is now running
 ) else (
     echo Failed to start the ADFTool container.
     exit /b 1
