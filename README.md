@@ -48,6 +48,7 @@ To obtain the docker image via GitHub, you can run the command below to clone th
 2. To use GUI mode: Run the `INSTALL.bat` if you are using the Windows operating system or the `INSTALL.sh` if you are using UNIX-like operating systems
 
 Notes for using the CLI installation scripts:
+
 The files to be analyzed must be provided at the beginning of the container building process. If the installation script is executed, the script will ask for 2 folder paths, the first path is where you store the files to be analysed and the second is where the results should be stored.
 
 ### Building ADFTool manually
