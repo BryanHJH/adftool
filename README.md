@@ -22,7 +22,7 @@ This is a Final Year Project for APD3F2311CS(CYB). This tool is mainly developed
 
 ## User Interface
 
-This tool will include a Graphical User Interface (GUI), mainly to satisfy my FYP requirement. The GUI is to be built using Python Flask. However, if the user prefers using the command line to interact with the tool, they can do so too. 
+This tool will include a Graphical User Interface (GUI), mainly to satisfy my FYP requirement. The GUI is to be built using Python Flask. However, if the user prefers using the command line to interact with the tool, they can do so too.
 
 ### TODO
 
@@ -30,7 +30,11 @@ None for now
 
 ## USAGE
 
-To use ADFTool, you can either clone the GitHub repo and then build the Docker image from there or pull the Docker image directly from Docker hub. We will explore both options below.
+To use ADFTool, you can either clone the GitHub repo and then execute the installation scripts included or build the Docker images manually. Both options will be explored below.
+
+Please note the prerequisite below.
+
+**Prerequisites: Docker is installed in your machine. Refer to the [Docker Installation page](https://docs.docker.com/engine/install/) on how to install Docker in your machine.**
 
 ### Cloning the GitHub repo
 
@@ -38,21 +42,23 @@ To obtain the docker image via GitHub, you can run the command below to clone th
 
 `git clone https://github.com/BryanHJH/adftool.git`
 
+### Using the installation scripts
 
-### Obtaining the Docker image
+1. To use CLI mode: Run the `INSTALL_CLI.bat` if you are using the Windows operating system or the `INSTALL_CLI.sh` if you are using UNIX-like operating systems
+2. To use GUI mode: Run the `INSTALL.bat` if you are using the Windows operating system or the `INSTALL.sh` if you are using UNIX-like operating systems
 
-To use ADFTool, you will need to first pull the image from Docker using the command below.
+Notes for using the CLI installation scripts:
+The files to be analyzed must be provided at the beginning of the container building process. If the installation script is executed, the script will ask for 2 folder paths, the first path is where you store the files to be analysed and the second is where the results should be stored.
 
-`docker pull docker push bryanhor/adftool:latest`
+### Building ADFTool manually
 
-### CMD Usage
-
-Once the docker image has been pulled into your local machine, you can run start the docker container by using the
-commands below:
+Once the GitHub repository has been cloned to your machine, you can run build the docker container by using the commands below:
 
 ```bash
 cd ADFTool/
 ```
+
+#### Building CLI mode
 
 ```docker
 docker build -t bryanhor/adftool:latest .
@@ -61,49 +67,35 @@ docker run -it -v /your/local/path/to/files_to_analyse:/home/data -v /your/local
 
 There are 2 `-v` flags because the first one is to load the folder that has the files that you wish to analyze. This folder is bound to the `/home/data` in the docker container. The second `-v`` flag is to bind the results generated in the docker container to one of your local folders.
 
-Optional flags are `--name` and `-v`:
+Refer to [CLI USAGE](#cli-usage) for a more detailed usage guide in CLI mode.
 
-- The `--name` flag will provide a specific name to the new container (however, if this flag is not provided, a name will be randomly generated).
-- The `--rm` flag will automatically remove the container when you exit from the docker container.
+#### Building GUI mode
 
-Once you are inside the docker container, you will be in the `/home` directory. In there, you can see multiple folders and files. In here, you can do multiple things:
+```docker
+docker build -t bryanhor/adftool:latest .
+docker run -d -p 5001:5001 bryanhor/adftool:latest
+```
 
-1. You can start the Flask application to use the GUI. 
-2. You can navigate to the `bin` folder to use the all-in-one scripts
-3. You can navigate to the `scripts` folder to use specific scripts.
+Refer to [GUI USAGE](#gui-usage) for a more detailed usage guide in GUI mode.
 
-If you choose option 1, you can move to the [GUI USAGE](#gui-usage).
+### CLI Usage
 
-If you choose option 2, you can navigate to the directory by using `cd bin/`. Then once inside the directory, you will see 3 different Python scripts, which are:
+Once you executed the INSTALL_CLI scripts, you will be brought to a Linux Bash instance as the `root` user. You will be in the `/home` directory when you first land in the Linux Bash instance.
 
-1. full_analyze.py: All-in-one script that will perform magic bytes analysis, steganalysis and network capture analysis.
-2. image_analyze.py: Script that will perform steganalysis only.
-3. pcap_analyze.py: Script that will perform network packet capture analysis only.
+ADFTool comes with several commands that are built-in that allows you to perform analysis on your files, as shown below:
 
-If you choose option 3, you can navigate to the directory by using `cd scripts/`. Then once inside the directory, you will see multiple bash scripts and some Python scripts. 
+1. `full_analyze` -- Performs magic byte analysis, steganalysis and network packet capture analysis
+2. `image_analyze` -- Performs only stegnalaysis
+3. `pcap_analyze` -- Performs only network packet capture analysis
 
-Each bash script will use a specific tool to perform a specific task. The name of the tool is already mentioned in the name of the file. For example `binwalk_analysis.sh` uses the tool `binwalk` to extract files hidden in an image. 
+All commands above takes 2 arguments, a file path and `-v` or `--verbose`. The file path can either point towards a single file or an entire directory. If a single file is provided.
 
-All files to be analysed will be stored in the `/home/data` directory.
-
-All output will be stored in the `/home/results/` directory.
-
-Once you're done using the tool, you can just type `exit` on the command line to exit the docker container.
+The files to be analysed will be stored in `/home/data`, the specific files are obtained from the first folder path that you provided when using the CLI installation script.
+The results for all analysis will be stored in `/home/results`. You can also find the results in the second folder path (your local machine) that you provided when using the CLI installation script.
 
 ### GUI Usage
 
-To use the GUI for ADFTool, you will need to execute the following commands after cloning the docker image from the GitHub repository or Docker hub.
-
-```bash
-cd adftool
-```
-
-```docker
-docker build -t bryanhor/adftool:latest
-docker run -p 5001:5001 bryanhor/adftool:latest
-```
-
-Once the commands above have been executed, you can go to your browser and type in `http://localhost:5001/` to access the GUI.
+Once the correct installation script or commands above have been executed, you can go to your browser and type in `http://localhost:5001/` to access the GUI.
 
 Once inside the GUI, it will like the image below:
 
