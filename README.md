@@ -66,7 +66,7 @@ docker build -t bryanhor/adftool:latest .
 docker run -it -v /your/local/path/to/files_to_analyse:/home/data -v /your/local/path/for/results/:/home/results bryanhor/adftool:latest bash
 ```
 
-There are 2 `-v` flags because the first one is to load the folder that has the files that you wish to analyze. This folder is bound to the `/home/data` in the docker container. The second `-v`` flag is to bind the results generated in the docker container to one of your local folders.
+There are 2 `-v` flags because the first one is to load the folder that has the files that you wish to analyze. This folder is bound to the `/home/data` in the docker container. The second `-v` flag is to bind the results generated in the docker container to one of your local folders.
 
 Refer to [CLI USAGE](#cli-usage) for a more detailed usage guide in CLI mode.
 

@@ -5,6 +5,7 @@ RUN apt update && apt install -y \
     outguess \
     'python3.12' \
     python3-pip \
+    python3-setuptools \
     ruby \
     tshark \
     dos2unix
